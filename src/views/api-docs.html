@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Gateway API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        header .version {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .info-card h3 {
+            color: #128C7E;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-card code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        
+        .endpoints {
+            padding: 30px;
+        }
+        
+        .endpoint-section {
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #25D366;
+        }
+        
+        .endpoint-section h2 {
+            color: #128C7E;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .endpoint-grid {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .endpoint {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .endpoint:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .method {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85em;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .method.get { background: #61affe; color: white; }
+        .method.post { background: #49cc90; color: white; }
+        .method.put { background: #fca130; color: white; }
+        .method.delete { background: #f93e3e; color: white; }
+        
+        .endpoint-path {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #333;
+        }
+        
+        .not-supported {
+            background: #ffebee;
+            color: #c62828;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .status-indicator.online {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .status-indicator.offline {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .auth-info {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 30px;
+        }
+        
+        .auth-info h3 {
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .stat-label {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+        }
+
+        .endpoint-details {
+            margin-top: 20px;
+        }
+
+        .endpoint-detail {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #25D366;
+        }
+
+        .endpoint-detail h4 {
+            color: #128C7E;
+            margin-bottom: 10px;
+        }
+
+        .endpoint-detail pre {
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .endpoint-detail code {
+            font-family: 'Courier New', monospace;
+            background: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .endpoint {
+            cursor: pointer;
+        }
+<<<<<<< SEARCH
+    </div>
+
+</body>
+
+</html>
+=======
+    </div>
+
+    <div id="endpointModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <h3>Example Request</h3>
+            <pre id="modalRequest"></pre>
+            <h3>Successful Response</h3>
+            <pre id="modalSuccess"></pre>
+            <h3>Error Response</h3>
+            <pre id="modalError"></pre>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('endpointModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalRequest = document.getElementById('modalRequest');
+        const modalSuccess = document.getElementById('modalSuccess');
+        const modalError = document.getElementById('modalError');
+        const closeBtn = document.querySelector('.close');
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.querySelectorAll('.endpoint').forEach(endpoint => {
+            endpoint.addEventListener('click', function() {
+                const method = this.querySelector('.method').textContent;
+                const path = this.querySelector('.endpoint-path').textContent;
+                modalTitle.textContent = `${method} ${path}`;
+                modalRequest.textContent = this.dataset.request || 'No example available';
+                modalSuccess.textContent = this.dataset.success || 'No example available';
+                modalError.textContent = this.dataset.error || 'No example available';
+                modal.style.display = "block";
+            });
+        });
+    </script>
+
+</body>
+
+</html>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/create</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/instance/create
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "name": "My WhatsApp Instance",
+  "webhookUrl": "https://webhook.site/your-unique-url"
+}' data-success='{
+  "success": true,
+  "data": {
+    "id": "55dbd02d-1b9c-4fc8-84e4-b6ceef3bc81c",
+    "name": "My WhatsApp Instance",
+    "status": "connecting",
+    "webhookUrl": "https://webhook.site/your-unique-url",
+    "createdAt": "2023-10-01T10:00:00.000Z",
+    "updatedAt": "2023-10-01T10:00:00.000Z"
+  },
+  "message": "Instance created successfully. Please scan the QR code."
+}' data-error='{
+  "success": false,
+  "error": "Invalid API key or missing required fields"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/create</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/instance/:instanceId</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='DELETE http://localhost:3000/api/instance/{instanceId}
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "message": "Instance deleted successfully"
+}' data-error='{
+  "success": false,
+  "error": "Instance not found or unauthorized"
+}'>
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/instance/:instanceId</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/status</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='GET http://localhost:3000/api/instance/{instanceId}/status
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "data": {
+    "id": "55dbd02d-1b9c-4fc8-84e4-b6ceef3bc81c",
+    "name": "My WhatsApp Instance",
+    "status": "connected",
+    "phoneNumber": "+628123456789",
+    "isActive": true,
+    "messageCount": 150,
+    "chatCount": 25,
+    "createdAt": "2023-10-01T10:00:00.000Z",
+    "updatedAt": "2023-10-01T10:05:00.000Z"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Instance not found"
+}'>
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/status</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/qr</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='GET http://localhost:3000/api/instance/{instanceId}/qr
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "data": {
+    "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "message": "Scan this QR code with WhatsApp"
+  }
+}' data-error='{
+  "success": false,
+  "error": "QR code not available"
+}'>
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/qr</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/info</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='GET http://localhost:3000/api/instance/{instanceId}/info
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "data": {
+    "id": "55dbd02d-1b9c-4fc8-84e4-b6ceef3bc81c",
+    "name": "My WhatsApp Instance",
+    "status": "connected",
+    "phoneNumber": "+628123456789",
+    "webhookUrl": "https://webhook.site/your-unique-url",
+    "createdAt": "2023-10-01T10:00:00.000Z",
+    "updatedAt": "2023-10-01T10:05:00.000Z"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Instance not found"
+}'>
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/info</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='GET http://localhost:3000/api/instance
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "data": [
+    {
+      "id": "55dbd02d-1b9c-4fc8-84e4-b6ceef3bc81c",
+      "name": "My WhatsApp Instance",
+      "status": "connected",
+      "createdAt": "2023-10-01T10:00:00.000Z"
+    }
+  ]
+}' data-error='{
+  "success": false,
+  "error": "Unauthorized"
+}'>
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/instance/:instanceId</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='PUT http://localhost:3000/api/instance/{instanceId}
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "name": "Updated Name",
+  "webhookUrl": "https://new-webhook.com"
+}' data-success='{
+  "success": true,
+  "data": {
+    "id": "55dbd02d-1b9c-4fc8-84e4-b6ceef3bc81c",
+    "name": "Updated Name",
+    "webhookUrl": "https://new-webhook.com",
+    "updatedAt": "2023-10-01T10:10:00.000Z"
+  },
+  "message": "Instance updated successfully"
+}' data-error='{
+  "success": false,
+  "error": "Invalid data or unauthorized"
+}'>
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/instance/:instanceId</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/restart</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/instance/{instanceId}/restart
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "message": "Instance restarted successfully"
+}' data-error='{
+  "success": false,
+  "error": "Instance not found or failed to restart"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/restart</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/logout</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/instance/{instanceId}/logout
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "message": "Instance logged out successfully"
+}' data-error='{
+  "success": false,
+  "error": "Instance not found or logout failed"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/logout</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/text</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/text
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "message": "Hello World"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E4B",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid recipient or message"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/text</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/media</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/media
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "mediaUrl": "https://example.com/image.jpg",
+  "caption": "Optional caption"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E4C",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid media URL or recipient"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/media</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/bulk</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/bulk
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "messages": [
+    {
+      "to": "628123456789@c.us",
+      "message": "Bulk message 1"
+    },
+    {
+      "to": "628987654321@c.us",
+      "message": "Bulk message 2"
+    }
+  ]
+}' data-success='{
+  "success": true,
+  "data": [
+    {
+      "to": "628123456789@c.us",
+      "messageId": "3EB0C1C8F2D2E4D",
+      "status": "sent"
+    },
+    {
+      "to": "628987654321@c.us",
+      "messageId": "3EB0C1C8F2D2E4E",
+      "status": "sent"
+    }
+  ]
+}' data-error='{
+  "success": false,
+  "error": "Invalid recipients or messages"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/bulk</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/image</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/image
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "imageUrl": "https://example.com/image.jpg",
+  "caption": "Image caption"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E4F",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid image URL"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/image</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/file</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/file
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "fileUrl": "https://example.com/document.pdf",
+  "filename": "document.pdf"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E50",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid file URL"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/file</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/voice</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/voice
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "voiceUrl": "https://example.com/voice.ogg"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E51",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid voice URL"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/voice</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/video</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/video
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "videoUrl": "https://example.com/video.mp4",
+  "caption": "Video caption"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E52",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid video URL"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/video</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/link-preview</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/link-preview
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "url": "https://example.com",
+  "message": "Check this link"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E53",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid URL"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/link-preview</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/list</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/list
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "title": "List Title",
+  "description": "List description",
+  "buttonText": "Select",
+  "sections": [
+    {
+      "title": "Section 1",
+      "rows": [
+        {
+          "title": "Option 1",
+          "description": "Description 1",
+          "rowId": "option1"
+        }
+      ]
+    }
+  ]
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E54",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid list data"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/list</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/buttons</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/buttons
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "message": "Choose an option",
+  "buttons": [
+    {
+      "buttonId": "btn1",
+      "buttonText": "Option 1"
+    },
+    {
+      "buttonId": "btn2",
+      "buttonText": "Option 2"
+    }
+  ]
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E55",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid button data"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/buttons</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/poll</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/poll
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "question": "What's your favorite color?",
+  "options": ["Red", "Blue", "Green"]
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E56",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid poll data"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/poll</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/poll-vote</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/poll-vote
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "pollId": "poll-message-id",
+  "optionIndex": 0
+}' data-success='{
+  "success": true,
+  "message": "Vote submitted"
+}' data-error='{
+  "success": false,
+  "error": "Invalid poll or option"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/poll-vote</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/location</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/location
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "latitude": -6.2088,
+  "longitude": 106.8456,
+  "address": "Jakarta, Indonesia"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E57",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid location data"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/location</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/contact</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/send/contact
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "contact": {
+    "displayName": "John Doe",
+    "vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nTEL;TYPE=CELL:628123456789\nEND:VCARD"
+  }
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E58",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Invalid contact data"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/contact</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/chats/:instanceId</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='GET http://localhost:3000/api/message/chats/{instanceId}
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "data": [
+    {
+      "id": "628123456789@c.us",
+      "name": "John Doe",
+      "unreadCount": 5,
+      "lastMessage": {
+        "message": "Hello",
+        "timestamp": 1696118400
+      }
+    }
+  ]
+}' data-error='{
+  "success": false,
+  "error": "Instance not found"
+}'>
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/chats/:instanceId</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/chat/:instanceId/:chatId</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='GET http://localhost:3000/api/message/chat/{instanceId}/{chatId}
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "data": [
+    {
+      "id": "3EB0C1C8F2D2E59",
+      "from": "628123456789@c.us",
+      "to": "628987654321@c.us",
+      "message": "Hello",
+      "timestamp": 1696118400,
+      "type": "text"
+    }
+  ]
+}' data-error='{
+  "success": false,
+  "error": "Chat not found"
+}'>
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/chat/:instanceId/:chatId</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/all/:instanceId</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='GET http://localhost:3000/api/message/all/{instanceId}
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "data": [
+    {
+      "id": "3EB0C1C8F2D2E5A",
+      "from": "628123456789@c.us",
+      "to": "628987654321@c.us",
+      "message": "Hello",
+      "timestamp": 1696118400,
+      "type": "text"
+    }
+  ]
+}' data-error='{
+  "success": false,
+  "error": "Instance not found"
+}'>
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/all/:instanceId</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/message/:instanceId/:messageId</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='DELETE http://localhost:3000/api/message/{instanceId}/{messageId}
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "message": "Message deleted"
+}' data-error='{
+  "success": false,
+  "error": "Message not found"
+}'>
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/message/:instanceId/:messageId</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/forward</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/forward
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "messageId": "3EB0C1C8F2D2E5B",
+  "to": "628987654321@c.us"
+}' data-success='{
+  "success": true,
+  "data": {
+    "messageId": "3EB0C1C8F2D2E5C",
+    "status": "sent"
+  }
+}' data-error='{
+  "success": false,
+  "error": "Message not found or invalid recipient"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/forward</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/read/:instanceId/:chatId</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/read/{instanceId}/{chatId}
+
+Headers:
+X-API-Key: your-secret-api-key-here' data-success='{
+  "success": true,
+  "message": "Chat marked as read"
+}' data-error='{
+  "success": false,
+  "error": "Chat not found"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/read/:instanceId/:chatId</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/seen</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/seen
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "messageIds": ["3EB0C1C8F2D2E5D"]
+}' data-success='{
+  "success": true,
+  "message": "Messages marked as seen"
+}' data-error='{
+  "success": false,
+  "error": "Messages not found"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/seen</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/typing
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "action": "start"
+}' data-success='{
+  "success": true,
+  "message": "Typing indicator sent"
+}' data-error='{
+  "success": false,
+  "error": "Invalid action"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing/start</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/typing/start
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us"
+}' data-success='{
+  "success": true,
+  "message": "Typing started"
+}' data-error='{
+  "success": false,
+  "error": "Invalid recipient"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing/start</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing/stop</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/typing/stop
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us"
+}' data-success='{
+  "success": true,
+  "message": "Typing stopped"
+}' data-error='{
+  "success": false,
+  "error": "Invalid recipient"
+}'>
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing/stop</span>
+                    </div>
+<<<<<<< SEARCH
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/presence</span>
+                    </div>
+=======
+                    <div class="endpoint" data-request='POST http://localhost:3000/api/message/presence
+
+Headers:
+X-API-Key: your-secret-api-key-here
+
+Request Body:
+{
+  "instanceId": "your-instance-id",
+  "to": "628123456789@c.us",
+  "presence": "available"
+}' data-success='{
+  "success": true,
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <svg class="icon" style="width:40px;height:40px" fill="white" viewBox="0 0 24 24">
+                    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 14C16.31 13.86 15.09 13.26 14.87 13.18C14.64 13.1 14.5 13.06 14.31 13.3C14.15 13.55 13.67 14.11 13.53 14.27C13.38 14.44 13.24 14.46 13 14.34C12.74 14.21 11.94 13.95 11 13.11C10.26 12.45 9.77 11.64 9.62 11.39C9.5 11.15 9.61 11 9.73 10.89C9.84 10.78 10 10.6 10.1 10.45C10.23 10.31 10.27 10.2 10.35 10.04C10.43 9.87 10.39 9.73 10.33 9.61C10.27 9.5 9.77 8.26 9.56 7.77C9.36 7.29 9.16 7.35 9 7.34C8.86 7.34 8.7 7.33 8.53 7.33Z"/>
+                </svg>
+                WhatsApp Gateway API
+            </h1>
+            <p>Multi-instance WhatsApp Gateway API using Baileys</p>
+            <span class="version">Version 1.0.0</span>
+            
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-value">{{TOTAL_ENDPOINTS}}</span>
+                    <span class="stat-label">Total Endpoints</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">6</span>
+                    <span class="stat-label">API Sections</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="status">🟢</span>
+                    <span class="stat-label">Server Status</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z"/>
+                    </svg>
+                    Base URL
+                </h3>
+                <code>{{BASE_URL}}</code>
+            </div>
+            
+            <div class="info-card">
+                <h3>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z"/>
+                    </svg>
+                    Authentication
+                </h3>
+                <p>API Key Required</p>
+                <code>X-API-Key: your-api-key</code>
+            </div>
+            
+            <div class="info-card">
+                <h3>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                    </svg>
+                    Status
+                </h3>
+                <span class="status-indicator online">● Online</span>
+            </div>
+            
+            <div class="info-card">
+                <h3>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                    </svg>
+                    Rate Limit
+                </h3>
+                <p>100 requests per 15 minutes</p>
+            </div>
+        </div>
+        
+        <div class="auth-info">
+            <h3>🔐 Authentication Required</h3>
+            <p>All API endpoints require authentication. Include your API key in the request header:</p>
+            <code>X-API-Key: test-api-key</code>
+        </div>
+        
+        <div class="endpoints">
+            <!-- Instance Management -->
+            <div class="endpoint-section">
+                <h2>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M17,2V4H7V2H17M17,6V18H7V6H17M17,0H7A2,2 0 0,0 5,2V18A2,2 0 0,0 7,20H17A2,2 0 0,0 19,18V2A2,2 0 0,0 17,0M12,8A2,2 0 0,0 10,10A2,2 0 0,0 12,12A2,2 0 0,0 14,10A2,2 0 0,0 12,8M12,14C10.34,14 9,15.34 9,17H15C15,15.34 13.66,14 12,14Z"/>
+                    </svg>
+                    Instance Management
+                </h2>
+                <div class="endpoint-grid">
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/create</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/instance/:instanceId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/status</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/qr</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/info</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/instance</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/instance/:instanceId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/restart</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/instance/:instanceId/logout</span>
+                    </div>
+                </div>
+
+                <div class="endpoint-details">
+                    <div class="endpoint-detail">
+                        <h4>POST /api/instance/create</h4>
+                        <p><strong>URL:</strong> http://localhost:3000/api/instance/create</p>
+                        <p><strong>Headers:</strong></p>
+                        <pre>X-API-Key: your-secret-api-key-here</pre>
+                        <p><strong>Request Body:</strong></p>
+                        <pre>{
+  "name": "My WhatsApp Instance",
+  "webhookUrl": "https://webhook.site/your-unique-url"
+}</pre>
+                        <p><strong>Response Example:</strong></p>
+                        <pre>{
+  "success": true,
+  "data": {
+    "id": "55dbd02d-1b9c-4fc8-84e4-b6ceef3bc81c",
+    "name": "My WhatsApp Instance",
+    "status": "connecting",
+    "webhookUrl": "https://webhook.site/your-unique-url",
+    "createdAt": "2023-10-01T10:00:00.000Z",
+    "updatedAt": "2023-10-01T10:00:00.000Z"
+  },
+  "message": "Instance created successfully. Please scan the QR code."
+}</pre>
+                    </div>
+
+                    <div class="endpoint-detail">
+                        <h4>GET /api/instance/:instanceId/status</h4>
+                        <p><strong>URL:</strong> http://localhost:3000/api/instance/{instanceId}/status</p>
+                        <p><strong>Headers:</strong></p>
+                        <pre>X-API-Key: your-secret-api-key-here</pre>
+                        <p><strong>Response Example:</strong></p>
+                        <pre>{
+  "success": true,
+  "data": {
+    "id": "55dbd02d-1b9c-4fc8-84e4-b6ceef3bc81c",
+    "name": "My WhatsApp Instance",
+    "status": "connected",
+    "phoneNumber": "+628123456789",
+    "isActive": true,
+    "messageCount": 150,
+    "chatCount": 25,
+    "createdAt": "2023-10-01T10:00:00.000Z",
+    "updatedAt": "2023-10-01T10:05:00.000Z"
+  }
+}</pre>
+                    </div>
+
+                    <div class="endpoint-detail">
+                        <h4>GET /api/instance/:instanceId/qr</h4>
+                        <p><strong>URL:</strong> http://localhost:3000/api/instance/{instanceId}/qr</p>
+                        <p><strong>Headers:</strong></p>
+                        <pre>X-API-Key: your-secret-api-key-here</pre>
+                        <p><strong>Response Example:</strong></p>
+                        <pre>{
+  "success": true,
+  "data": {
+    "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "message": "Scan this QR code with WhatsApp"
+  }
+}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="endpoint-section">
+                <h2>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M6,9H18V11H6M14,14H6V12H14M18,8H6V6H18"/>
+                    </svg>
+                    Messages
+                </h2>
+                <div class="endpoint-grid">
+                    <!-- Basic Messaging -->
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/text</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/media</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/bulk</span>
+                    </div>
+                    <!-- Advanced Messaging -->
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/image</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/file</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/voice</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/video</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/link-preview</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/list</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/buttons</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/poll</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/poll-vote</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/location</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/send/contact</span>
+                    </div>
+                    <!-- Message Management -->
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/chats/:instanceId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/chat/:instanceId/:chatId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/message/all/:instanceId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/message/:instanceId/:messageId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/forward</span>
+                    </div>
+                    <!-- Message Actions -->
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/read/:instanceId/:chatId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/seen</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing/start</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/typing/stop</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/message/presence</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/message/reaction</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/message/star</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Channels -->
+            <div class="endpoint-section">
+                <h2>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M3,4V16H6V4H3M7,4V16H9V4H7M10,4V16H12V4H10M13,4V16H16V4H13M17,4V16H19V4H17M20,4V16H21V4H20M2,17V20H22V17H2Z"/>
+                    </svg>
+                    Channels/Newsletters
+                </h2>
+                <div class="endpoint-grid">
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/channels/:instanceId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/channels/:instanceId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/:channelId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/:channelId</span>
+                        <span class="not-supported">Not Supported</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/:channelId/messages/preview</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/:channelId/follow</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/:channelId/unfollow</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/:channelId/mute</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/:channelId/unmute</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/search/by-text</span>
+                        <span class="not-supported">Not Supported</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/channels/:instanceId/search/by-view</span>
+                        <span class="not-supported">Not Supported</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/channels/search/views</span>
+                        <span class="not-supported">Not Supported</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/channels/search/countries</span>
+                        <span class="not-supported">Not Supported</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/channels/search/categories</span>
+                        <span class="not-supported">Not Supported</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Profile -->
+            <div class="endpoint-section">
+                <h2>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                    </svg>
+                    Profile Management
+                </h2>
+                <div class="endpoint-grid">
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/profile/:instanceId</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/profile/:instanceId/name</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/profile/:instanceId/status</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/profile/:instanceId/picture</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/profile/:instanceId/picture</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Authentication -->
+            <div class="endpoint-section">
+                <h2>
+                    <svg class="icon" fill="#128C7E" viewBox="0 0 24 24">
+                        <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"/>
+                    </svg>
+                    Authentication & Webhooks
+                </h2>
+                <div class="endpoint-grid">
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/auth/generate-key</span>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <p>&copy; 2023 WhatsApp Gateway API. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

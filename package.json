@@ -1,0 +1,53 @@
+{
+  "name": "whatsapp-gateway-api",
+  "version": "1.0.0",
+  "description": "Multi-instance WhatsApp Gateway API using Baileys, Express, Prisma, and MySQL",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:studio": "prisma studio",
+    "prisma:push": "prisma db push",
+    "setup": "npm run prisma:generate && npm run prisma:push",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "whatsapp",
+    "gateway",
+    "api",
+    "baileys",
+    "multi-instance",
+    "nodejs",
+    "express",
+    "prisma",
+    "mysql"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=17.0.0"
+  },
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@prisma/client": "^6.19.0",
+    "axios": "^1.13.2",
+    "baileys": "^7.0.0-rc.6",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "mysql2": "^3.15.3",
+    "prisma": "^6.19.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

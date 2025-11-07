@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Instance {
+  id            String    @id @default(uuid())
+  name          String
+  phoneNumber   String?   @unique
+  status        String    @default("disconnected") // connected, disconnected, connecting, qr
+  qrCode        String?   @db.Text
+  isActive      Boolean   @default(true)
+  webhookUrl    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  sessions      Session[]
+  messages      Message[]
+  chats         Chat[]
+  webhookLogs   WebhookLog[]
+  
+  @@index([status])
+  @@index([phoneNumber])
+}
+
+model Session {
+  id            String    @id @default(uuid())
+  instanceId    String
+  sessionData   String    @db.LongText
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  instance      Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  
+  @@unique([instanceId])
+  @@index([instanceId])
+}
+
+model Message {
+  id            String    @id @default(uuid())
+  instanceId    String
+  chatId        String
+  messageId     String    @unique
+  fromMe        Boolean
+  from          String
+  to            String
+  body          String?   @db.Text
+  type          String    // text, image, video, document, audio, sticker
+  mediaUrl      String?   @db.Text
+  timestamp     DateTime
+  status        String?   // sent, delivered, read, failed
+  createdAt     DateTime  @default(now())
+  
+  instance      Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  chat          Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  
+  @@index([instanceId])
+  @@index([chatId])
+  @@index([messageId])
+  @@index([timestamp])
+}
+
+model Chat {
+  id            String    @id @default(uuid())
+  instanceId    String
+  chatId        String
+  name          String?
+  isGroup       Boolean   @default(false)
+  participants  Int       @default(1)
+  lastMessage   String?   @db.Text
+  lastMessageAt DateTime?
+  unreadCount   Int       @default(0)
+  archived      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  instance      Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  messages      Message[]
+  
+  @@unique([instanceId, chatId])
+  @@index([instanceId])
+  @@index([chatId])
+}
+
+model Webhook {
+  id            String    @id @default(uuid())
+  event         String    // message.received, message.sent, status.update, etc
+  instanceId    String
+  payload       String    @db.LongText
+  status        String    @default("pending") // pending, sent, failed
+  attempts      Int       @default(0)
+  lastAttempt   DateTime?
+  createdAt     DateTime  @default(now())
+  
+  @@index([instanceId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model WebhookLog {
+  id          String   @id @default(cuid())
+  webhookId   String   @unique
+  instanceId  String?
+  url         String
+  event       String
+  payload     Json?
+  status      String   // success, failed
+  statusCode  Int?
+  response    Json?
+  error       String?
+  attempts    Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  instance    Instance? @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+
+  @@map("WebhookLog")
+}
