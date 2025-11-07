@@ -1144,8 +1144,8 @@ This project is licensed under the ISC License.
 For questions, issues, or feature requests:
 
 - **Documentation**: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/whatsapp-gateway-api/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/whatsapp-gateway-api/discussions)
+- **Issues**: [GitHub Issues](https://github.com/radhityaa/ayasya-wagw/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/radhityaa/ayasya-wagw/discussions)
 
 ---
 
