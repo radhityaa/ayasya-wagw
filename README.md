@@ -317,13 +317,15 @@ const limiter = rateLimit({
 
 ## 🎯 Quick Start
 
-### 1. Generate API Key
+### 1. Set API Key in Environment
 
-```bash
-curl -X POST http://localhost:3000/api/auth/generate-key \
-  -H "Content-Type: application/json" \
-  -d '{"name": "My API Key"}'
+Set your API key in the `.env` file:
+
+```env
+API_KEY="your-super-secret-api-key-here"
 ```
+
+**Note:** API keys are managed via environment variables only. No dynamic generation endpoint is provided.
 
 ### 2. Create WhatsApp Instance
 
