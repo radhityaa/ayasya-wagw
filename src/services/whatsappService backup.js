@@ -1,37 +1,52 @@
-const { default: makeWASocket, DisconnectReason, useMultiFileAuthState, delay, fetchLatestBaileysVersion } = require('baileys');
+const { default: makeWASocket, DisconnectReason, useMultiFileAuthState, delay } = require('baileys');
 
 const { Boom } = require('@hapi/boom');
 const qrcode = require('qrcode');
 const path = require('path');
 const fs = require('fs').promises;
-const database = require('../config/database.js');
-const config = require('../config/config.js');
-const webhookService = require('./webhookService.js');
+const database = require('../config/database');
+const config = require('../config/config');
+const webhookService = require('./webhookService');
 
 class WhatsAppService {
     constructor() {
         this.instances = new Map();
         this.reconnectAttempts = new Map();
         this.appStateReady = new Map(); // Track app state readiness
-        this.groupMetadataCache = new Map();
     }
 
-    async init(instanceId) {
+    async init(instanceId, forceFresh = false) {
         try {
             const sessionPath = path.join(config.whatsapp.sessionPath, instanceId);
 
             // Ensure session directory exists
             await fs.mkdir(sessionPath, { recursive: true });
 
-            // Use the per-instance session path as the auth directory for Baileys
-            const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
-            const { version, isLatest } = await fetchLatestBaileysVersion();
+            let state, saveCreds;
 
-            console.info(`📱 Using WA version ${version.join('.')}, isLatest: ${isLatest} for instance ${instanceId}`);
+            // Check if we should start fresh or try to load existing session
+            if (forceFresh) {
+                // For fresh start, create empty auth state
+                const { state: freshState, saveCreds: freshSaveCreds } = await useMultiFileAuthState(sessionPath);
+                state = freshState;
+                saveCreds = freshSaveCreds;
+            } else {
+                try {
+                    // Try to load existing auth state
+                    const authState = await useMultiFileAuthState(sessionPath);
+                    state = authState.state;
+                    saveCreds = authState.saveCreds;
+                } catch (error) {
+                    console.log(`Session files not found or corrupted for ${instanceId}, starting fresh`);
+                    // If loading fails, start fresh
+                    const { state: freshState, saveCreds: freshSaveCreds } = await useMultiFileAuthState(sessionPath);
+                    state = freshState;
+                    saveCreds = freshSaveCreds;
+                }
+            }
 
             // Create socket connection
             const socket = makeWASocket({
-                version,
                 auth: state,
                 printQRInTerminal: false,
                 browser: ['WhatsApp Gateway', 'Chrome', '1.0.0'],
@@ -40,63 +55,8 @@ class WhatsAppService {
                 connectTimeoutMs: 60000,
                 emitOwnEvents: true,
                 generateHighQualityLinkPreview: true,
-                logger: {
-                    level: 'error',
-                    trace: () => {},
-                    debug: () => {},
-                    info: () => {},
-                    warn: () => {},
-                    error: (data, msg) => {
-                        // Only log meaningful errors, ignore debug objects
-                        if (msg && typeof msg === 'string') {
-                            console.error(`[Baileys] ${msg}`);
-                        } else if (data && data.err && data.err instanceof Error) {
-                            console.error(`[Baileys] ${data.err.message}`);
-                        }
-                    },
-                    fatal: (msg) => console.error(`[Baileys Fatal] ${msg}`),
-                    child: () => ({
-                        level: 'error',
-                        trace: () => {},
-                        debug: () => {},
-                        info: () => {},
-                        warn: () => {},
-                        error: (data, msg) => {
-                            if (msg && typeof msg === 'string') {
-                                console.error(`[Baileys] ${msg}`);
-                            } else if (data && data.err && data.err instanceof Error) {
-                                console.error(`[Baileys] ${data.err.message}`);
-                            }
-                        },
-                        fatal: (msg) => console.error(`[Baileys Fatal] ${msg}`),
-                    }),
-                },
-                cachedGroupMetadata: async (jid) => {
-                    if (this.groupMetadataCache.has(jid)) {
-                        return this.groupMetadataCache.get(jid);
-                    }
-
-                    // Try to fetch metadata from any available socket instance as a best-effort
-                    try {
-                        for (const inst of this.instances.values()) {
-                            if (inst && inst.socket && typeof inst.socket.groupMetadata === 'function') {
-                                try {
-                                    const metadata = await inst.socket.groupMetadata(jid);
-                                    if (metadata) {
-                                        this.groupMetadataCache.set(jid, metadata);
-                                        return metadata;
-                                    }
-                                } catch (err) {
-                                    // ignore and try next instance
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.error(`Error fetching group metadata for ${jid}: ${error?.message || error}`);
-                    }
-
-                    return null;
-                },
+                // Force fresh connection for QR/pairing code generation
+                forceFresh: forceFresh,
             });
 
             // Handle connection updates
@@ -149,17 +109,10 @@ class WhatsAppService {
 
             // Handle app state sync - this is crucial for profile updates
             socket.ev.on('messaging-history.set', async ({ chats, contacts, messages, isLatest }) => {
-                console.log(`📱 App state sync for instance ${instanceId}: chats=${chats?.length || 0}, contacts=${contacts?.length || 0}, messages=${messages?.length || 0}, isLatest=${isLatest}`);
+                console.log(`App state sync for instance ${instanceId}: chats=${chats?.length || 0}, contacts=${contacts?.length || 0}, messages=${messages?.length || 0}, isLatest=${isLatest}`);
                 if (isLatest) {
-                    // Only mark as ready if not already marked by timeout
-                    if (!this.appStateReady.get(instanceId)) {
-                        this.appStateReady.set(instanceId, true);
-                        const instance = this.instances.get(instanceId);
-                        if (instance) {
-                            instance.appStateReady = true;
-                        }
-                        console.log(`✅ App state fully synced for instance ${instanceId} - Profile updates now available`);
-                    }
+                    this.appStateReady.set(instanceId, true);
+                    console.log(`App state fully synced for instance ${instanceId} - Profile updates now available`);
                 }
             });
 
@@ -223,6 +176,7 @@ class WhatsAppService {
             if (connection === 'close') {
                 const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
                 const attempts = this.reconnectAttempts.get(instanceId) || 0;
+
                 console.log(`Connection closed for instance ${instanceId}. Should reconnect: ${shouldReconnect}`);
 
                 // Update status in database
@@ -297,18 +251,17 @@ class WhatsAppService {
                     this.instances.get(instanceId).info = user;
                     this.instances.get(instanceId).qr = null;
 
-                    // Wait for app state to sync - increased timeout to 30 seconds
-                    // Most accounts sync within 5-15 seconds, but some may take longer
+                    // Wait a bit for app state to sync
                     setTimeout(() => {
                         const instance = this.instances.get(instanceId);
                         if (instance && !this.appStateReady.get(instanceId)) {
-                            // If app state hasn't synced after 30 seconds, mark it as ready anyway
-                            // Some accounts might not have messaging history or auto-sync disabled
+                            // If app state hasn't synced after 5 seconds, mark it as ready anyway
+                            // Some accounts might not have messaging history
                             this.appStateReady.set(instanceId, true);
                             instance.appStateReady = true;
-                            console.warn(`⚠️  App state marked as ready for instance ${instanceId} (timeout after 30s) - messaging-history.set event not received. Profile updates may be limited.`);
+                            console.log(`App state marked as ready for instance ${instanceId} (timeout)`);
                         }
-                    }, 30000);
+                    }, 5000);
                 }
 
                 // Save session data to database
