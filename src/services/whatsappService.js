@@ -8,6 +8,13 @@ const database = require('../config/database.js');
 const config = require('../config/config.js');
 const webhookService = require('./webhookService.js');
 
+const winston = require('winston');
+
+const logger = winston.createLogger({
+    level: 'info',
+    transports: [new winston.transports.Console()],
+});
+
 class WhatsAppService {
     constructor() {
         this.instances = new Map();
